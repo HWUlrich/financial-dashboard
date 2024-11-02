@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
+
 const FormSchema = z.object({
     id: z.string(),
     customerId: z.string(),
@@ -25,11 +26,17 @@ export async function createInvoice(formData: FormData) {
     const amountInCents = amount * 100;
     const date = new Date().toISOString().split('T')[0]; // Criando data no formato AAAA-MM-DD.
 
+    try{
     await sql`
         INSERT INTO invoices (customer_id, amount, status, date)
         VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
         `;
-    
+    } catch(error) {
+        return ({
+            message: 'Database Error: Falha ao CRIAR a Fatura.'
+        }
+        )
+    }
     revalidatePath('/deshboard/invoices');
     redirect('deshboard/invoices');
 }
@@ -42,20 +49,31 @@ export async function updateInvoice(id: string, formData: FormData) {
     });
     const amountInCents = amount * 100;
     
+    try {
     await sql`
         UPDATE invoices
         SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
         WHERE id = ${id}
         `;
-    
+    } catch(error) {
+        return ({
+            message: 'Database Error: Falha ao ALTERAR a Fatura.'
+        })
+    }
     revalidatePath('/deshboard/invoices');
     redirect('deshboard/invoices');
 }
 
 export async function deleteInvoice(id: string) {
+    //throw new Error('Falha ao DELETAR a Fatura!')
+    try{
     await sql`
         DELETE FROM invoices WHERE id = ${id}
         `;
-        
+    } catch (error) {
+        return ({
+            message: 'Database Error: Falha ao DELETAR a Fatura.'
+        })
+    }    
     revalidatePath('deshboard/invoices');    
 }

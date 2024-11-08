@@ -123,7 +123,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
               </div>              
             </div>
             <div id='status-error' aria-live='polite' aria-atomic='true'>
-                {state.errors?.status &&
+                {state.errors?.status && 
                 state.errors.status.map((error: string) => (
                 <p className='mt-1 text-sm text-red-500' key={error}>
                   {error}
